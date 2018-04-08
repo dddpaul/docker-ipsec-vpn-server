@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Docker script to configure and start an IPsec VPN server
 #
@@ -203,10 +203,21 @@ cat > /etc/ppp/chap-secrets <<EOF
 "$VPN_USER" l2tpd "$VPN_PASSWORD" *
 EOF
 
+echo "$VPN_USER_CREDENTIAL_LIST" | jq -r '.[] | .login + " l2tpd " + .password + " *"' > /etc/ppp/chap-secrets
+
 VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_PASSWORD")
 cat > /etc/ipsec.d/passwd <<EOF
 $VPN_USER:$VPN_PASSWORD_ENC:xauth-psk
 EOF
+
+CREDENTIALS_NUMBER=`echo "$VPN_USER_CREDENTIAL_LIST" | jq 'length'`
+for (( i=0; i<=$CREDENTIALS_NUMBER - 1; i++ ))
+do
+	VPN_USER_LOGIN=`echo "$VPN_USER_CREDENTIAL_LIST" | jq ".["$i"] | .login"`
+	VPN_USER_PASSWORD=`echo "$VPN_USER_CREDENTIAL_LIST" | jq ".["$i"] | .password"`
+	VPN_PASSWORD_ENC=$(openssl passwd -1 "$VPN_USER_PASSWORD")
+	echo "${VPN_USER_LOGIN}:${VPN_PASSWORD_ENC}:xauth-psk" >> /etc/ipsec.d/passwd
+done
 
 # Update sysctl settings
 SYST='/sbin/sysctl -e -q -w'

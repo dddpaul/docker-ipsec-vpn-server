@@ -47,6 +47,7 @@ This Docker image uses the following three variables, that can be declared in an
 VPN_IPSEC_PSK=your_ipsec_pre_shared_key
 VPN_USER=your_vpn_username
 VPN_PASSWORD=your_vpn_password
+VPN_USER_CREDENTIAL_LIST=[{"login":"userTest1","password":"test1"},{"login":"userTest2","password":"test2"}]
 ```
 
 This will create a user account for VPN login, which can be used by your multiple devices[*](https://github.com/hwdsl2/docker-ipsec-vpn-server#multi-device-note) . The IPsec PSK (pre-shared key) is specified by the `VPN_IPSEC_PSK` environment variable. The VPN username is defined in `VPN_USER`, and VPN password is specified by `VPN_PASSWORD`.
